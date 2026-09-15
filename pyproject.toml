@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foundryconnect-cli"
+version = "0.1.0"
+description = "Connect coding agents to Microsoft Foundry with renewable Entra authentication"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["tomlkit>=0.13,<1", "ruamel.yaml>=0.18,<0.19"]
+
+[project.scripts]
+foundryconnect = "foundryconnect.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
