@@ -37,7 +37,11 @@ with Path(os.environ["AZ_TEST_LOG"]).open("a") as log:
 if args[:2] == ["account", "show"]:
     print(json.dumps({{"tenantId": "{TENANT}", "id": "{SUBSCRIPTION}"}}))
 elif args[:2] == ["account", "get-access-token"]:
-    print(json.dumps({{"accessToken": "test-bearer-token", "expires_on": int(time.time()) + 3600}}))
+    if "--tenant" in args and "--subscription" in args:
+        sys.stderr.write("ERROR: Please specify only one of subscription and tenant, not both\\n")
+        sys.exit(1)
+    print(json.dumps({{"accessToken": "test-bearer-token", "tenant": "{TENANT}",
+                       "subscription": "{SUBSCRIPTION}", "expires_on": int(time.time()) + 3600}}))
 else:
     sys.exit(2)
 """)

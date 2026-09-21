@@ -207,15 +207,25 @@ class ConfigurationTests(unittest.TestCase):
 
 class AuthTests(unittest.TestCase):
     def test_helper_requests_each_time_and_pins_tenant(self):
-        results = [{"accessToken": f"token-{i}", "expires_on": str(int(time.time()) + 3600)} for i in (1, 2)]
+        results = [{"accessToken": f"token-{i}", "tenant": TENANT,
+                    "expires_on": str(int(time.time()) + 3600)} for i in (1, 2)]
         with patch.object(auth, "azure", side_effect=results) as azure:
             self.assertEqual(auth.token(profile(), COGNITIVE_SCOPE).value, "token-1")
             self.assertEqual(auth.token(profile(), COGNITIVE_SCOPE).value, "token-2")
         self.assertEqual(azure.call_count, 2)
         args = azure.call_args.args[0]
-        self.assertIn(TENANT, args)
+        # Azure CLI rejects --tenant together with --subscription for get-access-token.
+        self.assertNotIn("--tenant", args)
         self.assertIn(SUBSCRIPTION, args)
         self.assertIn(COGNITIVE_SCOPE, args)
+
+    def test_reject_token_issued_for_another_tenant(self):
+        for tenant in ("22222222-2222-2222-2222-222222222222", None, 5):
+            data = {"accessToken": "secret", "tenant": tenant,
+                    "expires_on": int(time.time()) + 3600}
+            with patch.object(auth, "azure", return_value=data):
+                with self.assertRaises(FoundryError):
+                    auth.token(profile(), COGNITIVE_SCOPE)
 
     def test_reject_bad_token_or_expiry(self):
         for data in ({"accessToken": "", "expires_on": int(time.time()) + 3600},
@@ -223,7 +233,8 @@ class AuthTests(unittest.TestCase):
                      {"accessToken": "secret", "expires_on": int(time.time()) + 60},
                      {"accessToken": "secret", "expiresOn": "2026-10-01"},
                      {"accessToken": "secret", "expires_on": True}):
-            with self.subTest(data=data), patch.object(auth, "azure", return_value=data):
+            with self.subTest(data=data), patch.object(auth, "azure",
+                                                       return_value={**data, "tenant": TENANT}):
                 with self.assertRaises(FoundryError) as raised:
                     auth.token(profile(), COGNITIVE_SCOPE)
                 self.assertNotIn("secret", str(raised.exception))

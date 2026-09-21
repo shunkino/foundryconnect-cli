@@ -51,10 +51,17 @@ def account(profile: Profile | None = None) -> dict:
 
 
 def token(profile: Profile, scope: str) -> AccessToken:
-    data = azure(["account", "get-access-token", "--tenant", profile.tenant,
-                  "--subscription", profile.subscription, "--scope", scope])
+    # Azure CLI rejects --tenant together with --subscription; the subscription implies the tenant,
+    # which is verified below so the standalone token helper cannot serve a foreign-tenant token.
+    data = azure(["account", "get-access-token", "--subscription", profile.subscription,
+                  "--scope", scope])
     if not isinstance(data, dict):
         raise FoundryError("Azure CLI returned an invalid token response.", "authentication")
+    issued_tenant = data.get("tenant")
+    if not isinstance(issued_tenant, str) or issued_tenant.lower() != profile.tenant.lower():
+        raise FoundryError("Azure CLI issued a token for a different tenant than this profile. Run "
+                           f"az login --tenant {profile.tenant}; no credentials were saved.",
+                           "authentication")
     value = data.get("accessToken")
     if (not isinstance(value, str) or not value or len(value) > 65536
             or any(ord(char) <= 32 or ord(char) >= 127 for char in value)):
