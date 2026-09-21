@@ -143,6 +143,11 @@ by the deployment name and sets both `id` and `name` to that deployment. Both
 `model` and `small_model` select `azure/DEPLOYMENT`. The catalog model's
 `options.useCompletionUrls` is `true` for chat and `false` for Responses.
 
+`options.baseURL` stops at `/openai` rather than the profile's normalized
+`/openai/v1` endpoint: the provider appends `/v1/<path>?api-version=v1` itself,
+so passing `/openai/v1` produces `/openai/v1/v1/responses`, which Azure rejects
+with a generic `404 Resource not found`.
+
 The tagged [`provider.ts`](https://github.com/anomalyco/opencode/blob/v1.18.25/packages/opencode/src/provider/provider.ts)
 maps the configured model `id` to the SDK model ID. It merges provider and model
 options before `selectAzureLanguageModel`, which selects `sdk.chat` when
@@ -182,7 +187,10 @@ Paths are made absolute before planning. Planning never writes files or mints
 tokens. URL-valued `OPENCODE_CONFIG`, inline `OPENCODE_CONFIG_CONTENT`, and
 additional `OPENCODE_CONFIG_DIR` layers are rejected. A selected JSONC path or
 existing sibling/default/current-directory `opencode.jsonc` is explicitly
-rejected: the tool does not silently ignore or overwrite JSONC.
+rejected: the tool does not silently ignore or overwrite JSONC. OpenCode loads
+`opencode.json` and `opencode.jsonc` from the same directory and merges them
+with the JSONC file taking precedence, so writes to the JSON file could be
+silently overridden. Merge the JSONC file into `opencode.json` and remove it.
 
 Only public Azure resources are accepted:
 

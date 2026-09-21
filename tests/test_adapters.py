@@ -122,6 +122,11 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(plan.changes[("small_model",)], "azure/my-deployment")
             self.assertEqual(plan.changes[("provider", "azure", "npm")], "@ai-sdk/azure")
             self.assertEqual(plan.changes[("provider", "azure", "options", "resourceName")], "demo")
+            # The provider appends /v1/<path>?api-version=v1, so baseURL must stop at /openai.
+            base_url = plan.changes[("provider", "azure", "options", "baseURL")]
+            self.assertTrue(base_url.endswith("/openai"), base_url)
+            self.assertFalse(base_url.endswith("/openai/v1"), base_url)
+            self.assertEqual(base_url + "/v1", profile(protocol).endpoint)
             p = ("provider", "azure", "models", "my-deployment")
             self.assertEqual(plan.changes[p + ("id",)], "my-deployment")
             self.assertEqual(plan.changes[p + ("options", "useCompletionUrls")], protocol == "chat")

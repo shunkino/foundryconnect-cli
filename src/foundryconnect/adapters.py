@@ -204,11 +204,14 @@ def make_plan(agent: str, profile: Profile) -> Plan:
                      "Hermes may infer Responses for GPT-5/codex/reasoning deployment names even "
                      "when chat is selected. Choose a deployment supporting the effective protocol."))
     model = ("provider", "azure", "models", profile.deployment)
+    # OpenCode's Azure provider appends "/v1/<path>?api-version=v1" itself, so the configured
+    # baseURL must stop at /openai; passing the normalized /openai/v1 endpoint yields /openai/v1/v1.
+    base_url = profile.endpoint[: -len("/v1")] if profile.endpoint.endswith("/v1") else profile.endpoint
     changes = {
         ("model",): "azure/" + profile.deployment,
         ("small_model",): "azure/" + profile.deployment,
         ("provider", "azure", "npm"): "@ai-sdk/azure",
-        ("provider", "azure", "options", "baseURL"): profile.endpoint,
+        ("provider", "azure", "options", "baseURL"): base_url,
         ("provider", "azure", "options", "resourceName"): urlsplit(profile.endpoint).hostname.split(".")[0],
         model + ("id",): profile.deployment,
         model + ("name",): profile.deployment,
