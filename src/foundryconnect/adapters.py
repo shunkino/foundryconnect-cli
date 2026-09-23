@@ -244,7 +244,12 @@ def check_version(agent: str) -> str:
     output = (result.stdout or "").strip() or (result.stderr or "").strip()
     prefixes = {"codex": r"codex(?:-cli)?", "claude": r"claude(?: code)?",
                 "hermes": r"hermes(?:-agent| agent)?", "opencode": r"opencode"}
-    suffix = (r"(?:\s+\(\d{4}[.-]\d{1,2}[.-]\d{1,2}\))?" if agent == "hermes"
+    # Git installs of hermes append provenance to the banner (banner.py format_banner_version_label):
+    # "· upstream <sha>" alone, or with "· local <sha> (+N carried commit[s])" when locally ahead.
+    hermes_provenance = (r"(?:\s+\u00b7\s+upstream\s+[0-9a-f]{7,40}"
+                         r"(?:\s+\u00b7\s+local\s+[0-9a-f]{7,40}"
+                         r"\s+\(\+\d+\s+carried\s+commits?\))?)?")
+    suffix = (r"(?:\s+\(\d{4}[.-]\d{1,2}[.-]\d{1,2}\))?" + hermes_provenance if agent == "hermes"
               else r"(?:\s+\(Claude Code\))?" if agent == "claude" else "")
     banner = output.splitlines()[0] if output else ""
     match = re.fullmatch(r"(?:" + prefixes[agent] + r"\s+)?v?(\d+\.\d+\.\d+)" + suffix,

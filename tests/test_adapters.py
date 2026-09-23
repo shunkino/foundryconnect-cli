@@ -262,6 +262,13 @@ class VersionTests(unittest.TestCase):
             ("hermes", "Hermes Agent v0.15.0 (2026.5.28)\nProject: /home/user/hermes\nPython: 3.13",
              "0.15.0"),
             ("hermes", "hermes 0.21.3", "0.21.3"),
+            ("hermes", "Hermes Agent v0.21.4 (2026.9.21) \u00b7 upstream e2f8a073\n"
+                       "Install directory: /home/user/.hermes/hermes-agent\nInstall method: git",
+             "0.21.4"),
+            ("hermes", "Hermes Agent v0.21.4 (2026.9.21) \u00b7 upstream e2f8a073 "
+                       "\u00b7 local 1a2b3c4 (+2 carried commits)", "0.21.4"),
+            ("hermes", "Hermes Agent v0.21.4 (2026.9.21) \u00b7 upstream e2f8a073 "
+                       "\u00b7 local 1a2b3c4 (+1 carried commit)", "0.21.4"),
             ("opencode", "1.18.25", "1.18.25"),
         ):
             with self.subTest(agent=agent), patch(
@@ -277,6 +284,8 @@ class VersionTests(unittest.TestCase):
             ("hermes", "hermes 0.14.0"), ("opencode", "1.18.24"),
             ("codex", "codex-cli 0.154.0-alpha.1"), ("codex", "0.154.0+dev"),
             ("claude", "unknown 2.1.272"), ("hermes", "Hermes Agent v0.21.3-dev (2026.9.14)"),
+            ("hermes", "Hermes Agent v0.21.4 (2026.9.21) \u00b7 SENSITIVE_VALUE"),
+            ("hermes", "Hermes Agent v0.21.4 (2026.9.21) \u00b7 upstream notahexsha"),
             ("opencode", "failed: unrelated 8.0.0"), ("opencode", ""),
             ("codex", "claude 3.0.0"), ("codex", "0.154.0\nSENSITIVE_VALUE"),
         ):

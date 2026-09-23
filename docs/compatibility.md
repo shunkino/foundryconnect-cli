@@ -24,7 +24,11 @@ individually certified.
 Hermes release tags use calendar versions; the executable reports a separate
 semantic version. `v2026.5.28` reports `0.15.0`, not `2026.5.28`. The adapter accepts
 the native `Hermes Agent v0.15.0 (2026.5.28)` banner and its additional diagnostic
-lines. OpenCode 1.18.25 includes the native Azure CLI integration and its
+lines. Git installs append provenance built by
+[`format_banner_version_label`](https://github.com/NousResearch/hermes-agent/blob/v2026.5.28/hermes_cli/banner.py) —
+`· upstream <sha>`, plus `· local <sha> (+N carried commits)` when the checkout is
+ahead. Both forms are accepted; the shas must be hex and any other trailing text is
+still rejected. OpenCode 1.18.25 includes the native Azure CLI integration and its
 [Bun-dependency removal](https://github.com/anomalyco/opencode/commit/733562e92a96).
 
 ## Exact configuration and renewal contracts
