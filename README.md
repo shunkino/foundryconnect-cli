@@ -220,3 +220,10 @@ real organizational credentials or make billable inference requests.
 The source [PRD](PRD.md) currently ends at section 7.1; this MVP implements its
 available command, safety and renewal requirements, with release evidence and
 deployment-certification limits recorded explicitly.
+
+## Acknowledgments
+
+FoundryConnect was inspired by [FireConnect](https://github.com/fw-ai/fireconnect),
+which connects coding agents to Fireworks AI and is licensed under
+[Apache License 2.0](https://github.com/fw-ai/fireconnect/blob/main/LICENSE).
+Thanks to the FireConnect contributors for the original project and approach.
