@@ -66,7 +66,8 @@ def smoke_test(profile: Profile, token: str) -> None:
                 result = json.loads(data)
             except (json.JSONDecodeError, UnicodeDecodeError) as exc:
                 raise FoundryError("Inference did not return valid JSON.", "protocol") from exc
-            if not isinstance(result, dict) or not isinstance(result.get(expected), list) or "error" in result:
+            if not isinstance(result, dict) or not isinstance(result.get(expected), list) \
+                    or result.get("error") is not None:
                 raise FoundryError("Inference response did not match the requested protocol.", "protocol")
     except HTTPError as exc:
         exc.close()

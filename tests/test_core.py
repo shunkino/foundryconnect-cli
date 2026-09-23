@@ -284,6 +284,12 @@ class DiagnosticsTests(unittest.TestCase):
                 self.assertTrue(request.full_url.endswith(route))
                 self.assertEqual(request.get_header("Authorization"), "Bearer sensitive")
                 self.assertEqual(json.loads(request.data)["model"], "my-deployment")
+                # Responses API success bodies carry an explicit "error": null.
+                response.read.return_value = json.dumps({key: [], "error": None}).encode()
+                diagnostics.smoke_test(profile(protocol=protocol, endpoint=endpoint), "sensitive")
+                response.read.return_value = json.dumps({key: [], "error": {"code": "x"}}).encode()
+                with self.assertRaises(FoundryError):
+                    diagnostics.smoke_test(profile(protocol=protocol, endpoint=endpoint), "sensitive")
                 response.read.return_value = b'{"unexpected": true}'
                 with self.assertRaises(FoundryError):
                     diagnostics.smoke_test(profile(protocol=protocol, endpoint=endpoint), "sensitive")
